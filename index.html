@@ -2,6 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
+  <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Меню — Парк Історії Землі</title>
 
@@ -456,16 +457,8 @@
   <button class="top-btn" id="topBtn" type="button" aria-label="Нагору">↑</button>
 
   <script>
-    const SHEET_ID = "1GZerl_j73IJE7HO3VSS1w3PXCdqSjvjRkjtlyrNdJ0Q";
-    const SHEET_GID = "0";
     const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
-
-    // Щоб вмикати/вимикати фото через таблицю, додай колонку "Показувати фото".
-    // Значення для вимкнення: ні, no, false, 0, hidden, вимкнено.
     const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
-
-    // Щоб змінювати фон сторінки через таблицю, додай колонку "Фон сторінки".
-    // Достатньо вставити посилання в першому рядку або в будь-якій одній позиції.
     const BACKGROUND_IMAGE_COLUMN = "Фон сторінки";
 
     const state = {
@@ -485,59 +478,38 @@
       catRight: document.getElementById("catRight")
     };
 
-    function loadGoogleSheet() {
-      return new Promise((resolve, reject) => {
-        const previousGoogle = window.google;
-        const script = document.createElement("script");
-        const timeout = window.setTimeout(() => {
-          cleanup();
-          reject(new Error("Google Sheets довго не відповідає"));
-        }, 12000);
+    function loadMenu() {
+      setStatus("Завантаження меню...");
+      els.menuRoot.innerHTML = "";
 
-        function cleanup() {
-          window.clearTimeout(timeout);
-          script.remove();
-          if (previousGoogle === undefined) {
-            try { delete window.google; } catch (e) { window.google = undefined; }
-          } else {
-            window.google = previousGoogle;
-          }
-        }
+      google.script.run
+        .withSuccessHandler(function(rows) {
+          applyPageBackground(rows);
 
-        window.google = window.google || {};
-        window.google.visualization = window.google.visualization || {};
-        window.google.visualization.Query = {
-          setResponse: data => {
-            cleanup();
-            if (!data || data.status === "error") {
-              const message = data?.errors?.[0]?.detailed_message || data?.errors?.[0]?.message || "Помилка читання таблиці";
-              reject(new Error(message));
-              return;
-            }
-            resolve(data);
-          }
-        };
+          const items = rows
+            .map(normalize)
+            .filter(item => item.name)
+            .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
+            .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
 
-        script.onerror = () => {
-          cleanup();
-          reject(new Error("Не вдалося підключитися до Google Sheets"));
-        };
+          state.items = items;
+          state.categories = getCategoriesFromRows(items);
+          state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
+          state.updatedAt = new Date();
 
-        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json&_=${Date.now()}`;
-        document.head.appendChild(script);
-      });
-    }
-
-    function tableToRows(table) {
-      const headers = table.cols.map((col, index) => String(col.label || col.id || `Колонка ${index + 1}`).trim());
-      return table.rows.map(row => {
-        const object = {};
-        headers.forEach((header, index) => {
-          const cell = row.c[index];
-          object[header] = cell ? (cell.f ?? cell.v ?? "") : "";
-        });
-        return object;
-      });
+          render();
+        })
+        .withFailureHandler(function(error) {
+          console.error(error);
+          setStatus("Не вдалося завантажити меню.");
+          els.menuRoot.innerHTML = `
+            <div class="error-box">
+              <strong>Меню не завантажилось.</strong><br>
+              Перевір Code.gs, доступ до таблиці і назви колонок.
+            </div>
+          `;
+        })
+        .getMenuItems();
     }
 
     function getValue(row, names) {
@@ -578,8 +550,8 @@
 
     function escapeCssUrl(value) {
       return String(value || "")
-        .replaceAll("\", "\\")
-        .replaceAll('"', '\"');
+        .replaceAll("\\", "\\\\")
+        .replaceAll('"', '\\"');
     }
 
     function getBadgeText(row) {
@@ -618,39 +590,6 @@
       if (!raw) return "";
       if (/грн|₴|uah/i.test(raw)) return raw;
       return raw + " грн";
-    }
-
-    async function loadMenu() {
-      try {
-        setStatus("Завантаження меню...");
-        els.menuRoot.innerHTML = "";
-
-        const data = await loadGoogleSheet();
-        const rows = tableToRows(data.table);
-        applyPageBackground(rows);
-
-        const items = rows
-          .map(normalize)
-          .filter(item => item.name)
-          .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
-          .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
-
-        state.items = items;
-        state.categories = getCategoriesFromRows(items);
-        state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
-        state.updatedAt = new Date();
-
-        render();
-      } catch (error) {
-        console.error(error);
-        setStatus("Не вдалося завантажити меню.");
-        els.menuRoot.innerHTML = `
-          <div class="error-box">
-            <strong>Меню не завантажилось.</strong><br>
-            Перевір доступ до таблиці і назви колонок.
-          </div>
-        `;
-      }
     }
 
     function getCategoriesFromRows(items) {
