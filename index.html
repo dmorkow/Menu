@@ -237,7 +237,7 @@
       align-items: start;
       justify-items: center;
       min-height: auto;
-      padding: 22px;
+      padding: 30px 22px 32px;
       border-radius: 30px;
       border: 1px solid rgba(255,255,255,.065);
       background:
@@ -250,12 +250,13 @@
     .item.no-photo {
       grid-template-columns: 1fr;
       min-height: auto;
-      padding: 22px;
+      padding: 30px 22px 32px;
     }
 
     .photo-wrap {
-      width: min(260px, 76vw);
-      height: min(260px, 76vw);
+      width: 80%;
+      aspect-ratio: 1 / 1;
+      height: auto;
       border-radius: 50%;
       overflow: hidden;
       border: 3px solid var(--accent);
@@ -284,24 +285,27 @@
     }
 
     .item-content {
-      position: relative;
-      width: min(260px, 76vw);
+      position: static;
+      width: 80%;
       min-width: 0;
-      max-width: 260px;
+      max-width: none;
       padding-right: 0;
       justify-self: center;
     }
 
     .item.no-photo .item-content {
-      width: 100%;
-      max-width: 420px;
-      padding-right: 58px;
+      width: 80%;
+      max-width: none;
+      padding-right: 0;
     }
 
     .dots {
+      position: absolute;
+      top: 18px;
+      left: 18px;
       display: flex;
       gap: 4px;
-      margin-bottom: 7px;
+      margin-bottom: 0;
     }
 
     .dots i {
@@ -314,8 +318,8 @@
 
     .badge {
       position: absolute;
-      top: 0;
-      right: 0;
+      top: 14px;
+      right: 14px;
       margin: 0;
       border-radius: 999px;
       background: var(--accent);
@@ -329,11 +333,7 @@
       box-shadow: 0 6px 16px rgba(242,163,0,.18);
     }
 
-    .item:not(.no-photo) .badge {
-      top: 10px;
-      right: 10px;
-    }
-
+    
     .item-title {
       margin: 0;
       font-size: 20px;
@@ -408,28 +408,33 @@
 
       .item {
         gap: 16px;
-        padding: 20px;
+        padding: 30px 20px 34px;
       }
 
       .photo-wrap {
-        width: min(250px, 74vw);
-        height: min(250px, 74vw);
+        width: 80%;
+        height: auto;
         justify-self: center;
       }
 
       .item-content {
-        width: min(250px, 74vw);
-        max-width: 250px;
+        width: 80%;
+        max-width: none;
         padding-right: 0;
       }
 
       .item.no-photo .item-content {
-        width: 100%;
-        max-width: 100%;
+        width: 80%;
+        max-width: none;
         padding-right: 0;
       }
 
-      .item:not(.no-photo) .badge {
+      .dots {
+        top: 18px;
+        left: 18px;
+      }
+
+      .badge {
         top: 14px;
         right: 14px;
       }
@@ -471,6 +476,10 @@
     const SHEET_ID = "1GZerl_j73IJE7HO3VSS1w3PXCdqSjvjRkjtlyrNdJ0Q";
     const SHEET_GID = "0";
     const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
+
+    // Щоб вмикати/вимикати фото через таблицю, додай колонку "Показувати фото".
+    // Значення для вимкнення: ні, no, false, 0, hidden, вимкнено.
+    const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
 
     const state = {
       items: [],
@@ -565,8 +574,15 @@
         popular: ["так", "yes", "1", "true", "+", "хіт", "hit"].includes(
           getValue(row, ["Популярне", "Popular", "Хіт"]).toLowerCase()
         ),
-        order: Number(String(getValue(row, ["Порядок", "Order", "Сортування"])).replace(",", ".")) || index + 1
+        order: Number(String(getValue(row, ["Порядок", "Order", "Сортування"])).replace(",", ".")) || index + 1,
+        showPhoto: getPhotoVisibility(row)
       };
+    }
+
+    function getPhotoVisibility(row) {
+      const value = getValue(row, [PHOTO_VISIBILITY_COLUMN, "Фото показувати", "Показувати", "Show photo", "ShowPhoto"]);
+      if (!value) return true;
+      return !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено", "off"].includes(value.toLowerCase());
     }
 
     function formatPrice(value) {
@@ -675,7 +691,8 @@
     }
 
     function renderItem(item) {
-      const showPhoto = !NO_PHOTO_CATEGORIES.includes(String(item.category || "").trim().toLowerCase());
+      const categoryAllowsPhoto = !NO_PHOTO_CATEGORIES.includes(String(item.category || "").trim().toLowerCase());
+      const showPhoto = categoryAllowsPhoto && item.showPhoto;
 
       return `
         <article class="item ${showPhoto ? "" : "no-photo"}">
@@ -688,9 +705,10 @@
             </div>
           ` : ""}
 
+          ${item.popular ? `<div class="badge">Хіт</div>` : ""}
+          <div class="dots"><i></i><i></i><i></i></div>
+
           <div class="item-content">
-            ${item.popular ? `<div class="badge">Хіт</div>` : ""}
-            <div class="dots"><i></i><i></i><i></i></div>
             <h3 class="item-title">${escapeHTML(item.name)}</h3>
             ${item.description ? `<p class="item-desc">${escapeHTML(item.description)}</p>` : ""}
             <div class="meta">
