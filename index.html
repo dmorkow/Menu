@@ -52,14 +52,19 @@
     body::after {
       content: "";
       position: fixed;
-      inset: 0;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
       z-index: -2;
       pointer-events: none;
       background-image: var(--page-bg-image);
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
-      transform: none;
+      transform: translateZ(0);
+      will-change: transform;
     }
 
     body::before {
@@ -441,7 +446,10 @@
 
       body::after {
         position: fixed;
+        left: 0;
+        top: 0;
         width: 100vw;
+        height: 100vh;
         height: 100dvh;
         min-height: 100vh;
         background-size: cover;
@@ -631,7 +639,7 @@
     }
 
     function applyPageBackground(url) {
-      const imageUrl = getImageUrl(url);
+      const imageUrl = getBackgroundImageUrl(url);
       if (!imageUrl) {
         document.documentElement.style.setProperty("--page-bg-image", "none");
         return;
@@ -640,13 +648,31 @@
       document.documentElement.style.setProperty("--page-bg-image", `url("${imageUrl.replaceAll('"', "%22")}")`);
     }
 
+    function getDriveFileId(url) {
+      const raw = String(url || "").trim();
+      const driveMatch = raw.match(/drive\.google\.com\/file\/d\/([^/]+)/) || raw.match(/[?&]id=([^&]+)/);
+      return driveMatch && driveMatch[1] ? driveMatch[1] : "";
+    }
+
     function getImageUrl(url) {
       const raw = String(url || "").trim();
       if (!raw) return "";
 
-      const driveMatch = raw.match(/drive\.google\.com\/file\/d\/([^/]+)/) || raw.match(/[?&]id=([^&]+)/);
-      if (driveMatch && driveMatch[1]) {
-        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
+      const driveId = getDriveFileId(raw);
+      if (driveId) {
+        return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+      }
+
+      return raw;
+    }
+
+    function getBackgroundImageUrl(url) {
+      const raw = String(url || "").trim();
+      if (!raw) return "";
+
+      const driveId = getDriveFileId(raw);
+      if (driveId) {
+        return `https://drive.google.com/thumbnail?id=${driveId}&sz=w2400`;
       }
 
       return raw;
