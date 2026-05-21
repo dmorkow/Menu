@@ -232,12 +232,13 @@
     .item {
       position: relative;
       display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 14px;
-      align-items: center;
-      min-height: 174px;
-      padding: 12px;
-      border-radius: var(--radius);
+      grid-template-columns: 1fr;
+      gap: 18px;
+      align-items: start;
+      justify-items: center;
+      min-height: auto;
+      padding: 22px;
+      border-radius: 30px;
       border: 1px solid rgba(255,255,255,.065);
       background:
         radial-gradient(circle at 100% 0%, rgba(242,163,0,.09), transparent 30%),
@@ -249,12 +250,12 @@
     .item.no-photo {
       grid-template-columns: 1fr;
       min-height: auto;
-      padding: 16px;
+      padding: 22px;
     }
 
     .photo-wrap {
-      width: 150px;
-      height: 150px;
+      width: min(260px, 76vw);
+      height: min(260px, 76vw);
       border-radius: 50%;
       overflow: hidden;
       border: 3px solid var(--accent);
@@ -284,13 +285,15 @@
 
     .item-content {
       position: relative;
-      width: 100%;
+      width: min(260px, 76vw);
       min-width: 0;
-      max-width: 320px;
+      max-width: 260px;
       padding-right: 0;
+      justify-self: center;
     }
 
     .item.no-photo .item-content {
+      width: 100%;
       max-width: 420px;
       padding-right: 58px;
     }
@@ -340,7 +343,7 @@
     }
 
     .item-desc {
-      max-width: 300px;
+      max-width: 100%;
       margin: 7px 0 12px;
       color: #d8d2c8;
       font-size: 13px;
@@ -404,30 +407,31 @@
       .page { width: min(100% - 14px, var(--max)); }
 
       .item {
-        grid-template-columns: 1fr;
-        gap: 12px;
-        padding: 12px;
+        gap: 16px;
+        padding: 20px;
       }
 
       .photo-wrap {
-        width: min(220px, 76vw);
-        height: min(220px, 76vw);
+        width: min(250px, 74vw);
+        height: min(250px, 74vw);
         justify-self: center;
       }
 
-      .item-content,
+      .item-content {
+        width: min(250px, 74vw);
+        max-width: 250px;
+        padding-right: 0;
+      }
+
       .item.no-photo .item-content {
+        width: 100%;
         max-width: 100%;
         padding-right: 0;
       }
 
-      .item-desc {
-        max-width: 330px;
-      }
-
       .item:not(.no-photo) .badge {
-        top: 12px;
-        right: 12px;
+        top: 14px;
+        right: 14px;
       }
     }
 
