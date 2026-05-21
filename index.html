@@ -568,6 +568,18 @@
       return !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено", "off"].includes(value.toLowerCase());
     }
 
+    function getImageUrl(url) {
+      const raw = String(url || "").trim();
+      if (!raw) return "";
+
+      const driveMatch = raw.match(/drive\.google\.com\/file\/d\/([^/]+)/) || raw.match(/[?&]id=([^&]+)/);
+      if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
+      }
+
+      return raw;
+    }
+
     function formatPrice(value) {
       const raw = String(value || "").trim();
       if (!raw) return "";
@@ -681,7 +693,7 @@
           ${showPhoto ? `
             <div class="photo-wrap">
               ${item.photo
-                ? `<img src="${escapeAttr(item.photo)}" alt="${escapeAttr(item.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;photo-placeholder&quot;>Фото<br>страви</div>'">`
+                ? `<img src="${escapeAttr(getImageUrl(item.photo))}" alt="${escapeAttr(item.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;photo-placeholder&quot;>Фото<br>страви</div>'">`
                 : `<div class="photo-placeholder">Фото<br>страви</div>`
               }
             </div>
