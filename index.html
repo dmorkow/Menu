@@ -34,6 +34,15 @@
       min-height: 100vh;
       color: var(--text);
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* НАДІЙНИЙ ФІКСОВАНИЙ ФОН ДЛЯ ВСІХ ПРИСТРОЇВ */
+    .main-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
       background-color: var(--bg);
       background-image:
         linear-gradient(rgba(7,7,6,.34), rgba(6,6,5,.52)),
@@ -46,8 +55,6 @@
       background-size: auto, cover, auto, auto, auto, auto, auto;
       background-position: center, center, center, center, center, center, center;
       background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat;
-      background-attachment: fixed;
-      overflow-x: hidden;
     }
 
     body::before {
@@ -416,7 +423,8 @@
         --panel: rgba(18, 18, 16, 0.16);
       }
 
-      body {
+      /* Мобільна оптимізація шарів нового фіксованого фону */
+      .main-bg {
         background-image:
           linear-gradient(rgba(7,7,6,.18), rgba(6,6,5,.34)),
           var(--page-bg-image),
@@ -425,7 +433,6 @@
           repeating-linear-gradient(90deg, rgba(255,255,255,.022) 0 1px, transparent 1px 74px),
           repeating-linear-gradient(8deg, rgba(255,255,255,.012) 0 2px, transparent 2px 18px),
           repeating-linear-gradient(0deg, var(--wood-1) 0 36px, #100e0c 36px 74px, var(--wood-2) 74px 114px);
-        background-attachment: scroll;
       }
 
       .hero {
@@ -470,6 +477,9 @@
   </style>
 </head>
 <body>
+  <!-- НОВИЙ ЕЛЕМЕНТ ФОНУ -->
+  <div class="main-bg"></div>
+
   <main class="page">
     <section class="hero" id="top">
       <p class="hero-kicker">Парк Історії Землі</p>
@@ -499,12 +509,7 @@
     const SHEET_GID = "0";
     const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
 
-    // Щоб вмикати/вимикати фото через таблицю, додай колонку "Показувати фото".
-    // Значення для вимкнення: ні, no, false, 0, hidden, вимкнено.
     const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
-
-    // Щоб змінити фон сторінки через таблицю, додай колонку "Фон сторінки".
-    // У будь-якому рядку встав посилання на зображення. Перший непорожній лінк стане фоном.
     const PAGE_BACKGROUND_COLUMN = "Фон сторінки";
 
     const state = {
