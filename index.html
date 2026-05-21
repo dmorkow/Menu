@@ -19,6 +19,7 @@
       --radius: 24px;
       --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
       --max: 620px;
+      --page-bg-image: none;
     }
 
     * { box-sizing: border-box; }
@@ -36,11 +37,15 @@
       background-color: var(--bg);
       background-image:
         linear-gradient(rgba(7,7,6,.78), rgba(6,6,5,.96)),
+        var(--page-bg-image),
         radial-gradient(ellipse at 18% 8%, rgba(242,163,0,.12), transparent 26%),
         radial-gradient(ellipse at 90% 24%, rgba(255,255,255,.055), transparent 32%),
         repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 74px),
         repeating-linear-gradient(8deg, rgba(255,255,255,.018) 0 2px, transparent 2px 18px),
         repeating-linear-gradient(0deg, var(--wood-1) 0 36px, #100e0c 36px 74px, var(--wood-2) 74px 114px);
+      background-size: auto, cover, auto, auto, auto, auto, auto;
+      background-position: center, center, center, center, center, center, center;
+      background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat;
       background-attachment: fixed;
       overflow-x: hidden;
     }
@@ -459,6 +464,10 @@
     // Значення для вимкнення: ні, no, false, 0, hidden, вимкнено.
     const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
 
+    // Щоб змінити фон сторінки через таблицю, додай колонку "Фон сторінки".
+    // У будь-якому рядку встав посилання на зображення. Перший непорожній лінк стане фоном.
+    const PAGE_BACKGROUND_COLUMN = "Фон сторінки";
+
     const state = {
       items: [],
       filtered: [],
@@ -574,6 +583,24 @@
       return !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено", "off"].includes(value.toLowerCase());
     }
 
+    function getPageBackground(rows) {
+      for (const row of rows) {
+        const value = getValue(row, [PAGE_BACKGROUND_COLUMN, "Фон", "Фонове зображення", "Background", "Background image"]);
+        if (value) return value;
+      }
+      return "";
+    }
+
+    function applyPageBackground(url) {
+      const imageUrl = getImageUrl(url);
+      if (!imageUrl) {
+        document.documentElement.style.setProperty("--page-bg-image", "none");
+        return;
+      }
+
+      document.documentElement.style.setProperty("--page-bg-image", `url("${imageUrl.replaceAll('"', "%22")}")`);
+    }
+
     function getImageUrl(url) {
       const raw = String(url || "").trim();
       if (!raw) return "";
@@ -600,6 +627,7 @@
 
         const data = await loadGoogleSheet();
         const rows = tableToRows(data.table);
+        applyPageBackground(getPageBackground(rows));
 
         const items = rows
           .map(normalize)
