@@ -1,156 +1,863 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Категорії</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Меню — Парк Історії Землі</title>
+
   <style>
-    /* 1. СТАТИЧНИЙ ТА ЗАТЕМНЕНИЙ ФОН */
+    :root {
+      --bg: #0d0c0a;
+      --wood-1: #14110e;
+      --wood-2: #1b1713;
+      --panel: rgba(20, 20, 18, 0.65);
+      --text: #fdfaf3;
+      --muted: #c2b9ad;
+      --accent: #f2a300;
+      --accent-2: #ffc44a;
+      --line: rgba(242, 163, 0, 0.35);
+      --radius: 24px;
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      --max: 620px;
+      --page-bg-image: none;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
     body {
       margin: 0;
-      padding: 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      color: #ffffff;
-      background-color: #0d0d0d;
-      
-      /* Додаємо оверлей 40% затемнення (rgba 0,0,0,0.4) поверх зображення */
-      background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('your-background-image.jpg');
-      
-      background-size: cover;
-      background-position: center;
-      
-      /* Головне фіксування: фон залишається на місці при скролі */
-      background-attachment: fixed; 
-      background-repeat: no-repeat;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .container {
-      max-width: 1200px;
+    /* СТАТИЧНИЙ ТА ЗАТЕМНЕНИЙ ФОН */
+    .main-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background-color: var(--bg);
+      background-image:
+        /* Посилене затемнення для фонового зображення з таблиці */
+        linear-gradient(rgba(13, 12, 10, 0.65), rgba(13, 12, 10, 0.82)),
+        var(--page-bg-image),
+        radial-gradient(ellipse at 18% 8%, rgba(242,163,0,.15), transparent 30%),
+        radial-gradient(ellipse at 90% 24%, rgba(255,255,255,.04), transparent 35%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.015) 0 1px, transparent 1px 74px),
+        repeating-linear-gradient(0deg, var(--wood-1) 0 36px, #0a0908 36px 74px, var(--wood-2) 74px 114px);
+      background-size: auto, cover, auto, auto, auto, auto;
+      background-position: center, center, center, center, center, center;
+      background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, repeat;
+      background-attachment: fixed, fixed, fixed, fixed, fixed, fixed; /* Забороняє руху при скролі */
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .25;
+      background:
+        linear-gradient(90deg, transparent 0 18%, rgba(0,0,0,.3) 18% 19%, transparent 19% 42%, rgba(0,0,0,.25) 42% 43%, transparent 43% 66%, rgba(0,0,0,.25) 66% 67%, transparent 67%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.01) 0 1px, transparent 1px 11px);
+      mix-blend-mode: overlay;
+    }
+
+    button { font: inherit; }
+
+    .page {
+      width: min(var(--max), calc(100% - 24px));
       margin: 0 auto;
-      padding: 80px 24px;
+      padding: 16px 0 calc(80px + env(safe-area-inset-bottom));
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: 300;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    /* 2. ОПТИМІЗАЦІЯ ДИЗАЙНУ ТА ЛОГІКИ КАТЕГОРІЙ */
-    /* Використовуємо CSS Grid для чіткої архітектурної структури */
-    .categories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-
-    .category-card {
+    .hero {
       position: relative;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 40px 30px;
-      text-decoration: none;
-      color: #ffffff;
       overflow: hidden;
-      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      padding: 32px 20px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(242,163,0,.15), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,0.4)),
+        rgba(15,15,13,0.4);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-kicker {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 12px;
+      line-height: 1.1;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .hero-title {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      font-size: clamp(38px, 12vw, 64px);
+      line-height: .95;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .hero-note {
+      margin: 12px auto 0;
+      max-width: 340px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .toolbar-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: 14px -12px 0;
+      padding: 12px 12px;
+      background: linear-gradient(180deg, rgba(13,12,10,0.92) 80%, rgba(13,12,10,0.5));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(242, 163, 0, 0.15);
+    }
+
+    .category-scroll {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .scroll-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(242,163,0,.4);
+      border-radius: 50%;
+      background: rgba(13,12,10,0.6);
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      transition: background 0.2s;
+    }
+    .scroll-btn:active {
+      background: var(--accent);
+      color: #0d0c0a;
+    }
+
+    .tabs {
       display: flex;
-      flex-direction: column;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      scroll-behavior: smooth;
+      scroll-snap-type: x proximity;
+      padding: 2px 0;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.15;
+      white-space: nowrap;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #0d0c0a;
+      border-color: var(--accent);
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(242,163,0,0.25);
+      transform: scale(1.02);
+    }
+
+    .status {
+      display: flex;
       justify-content: space-between;
-      min-height: 200px;
+      gap: 8px 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      margin: 14px 4px 4px;
     }
 
-    /* Ефект при наведенні (Hover) — картка стає активнішою, але стримано */
-    .category-card:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-4px);
+    .status strong { color: var(--accent); }
+
+    .category {
+      margin-top: 32px;
+      scroll-margin-top: 82px; /* Ідеальний відступ під фіксований тулбар */
     }
 
-    /* Номер чи індекс категорії для кращої візуальної логіки навігації */
-    .category-number {
-      font-size: 0.85rem;
-      font-family: monospace;
-      color: rgba(255, 255, 255, 0.4);
-      margin-bottom: 30px;
+    .category-head {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 0 4px 12px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--line);
     }
 
     .category-title {
-      font-size: 1.5rem;
-      font-weight: 400;
-      letter-spacing: 1px;
-      margin: 0 0 8px 0;
+      margin: 0;
+      color: var(--accent);
+      font-size: clamp(24px, 7.5vw, 34px);
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 900;
     }
 
-    .category-desc {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.6);
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 20px 28px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.09);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(242,163,0,.06), transparent 45%),
+        var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px); /* Ефект якісного матового скла */
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .top-mark {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 5px;
       margin: 0;
+    }
+
+    .dots i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: block;
+      background: rgba(242,163,0,0.4);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #0d0c0a;
+      padding: 5px 12px;
+      font-size: 10px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 900;
+      box-shadow: 0 4px 12px rgba(242,163,0,0.3);
+    }
+
+    .photo-wrap {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--accent);
+      background: #1c1a17;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.6);
+    }
+
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-placeholder {
+      color: rgba(255,255,255,.4);
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .item-content {
+      width: 100%;
+    }
+
+    .item-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .item-desc {
+      margin: 8px 0 16px;
+      color: #cfc9be;
+      font-size: 13px;
       line-height: 1.5;
     }
 
-    /* Стрілка-індикатор, яка м'яко висувається при наведенні */
-    .category-arrow {
-      position: absolute;
-      bottom: 30px;
-      right: 30px;
-      font-size: 1.2rem;
-      opacity: 0.3;
-      transform: translateX(0);
-      transition: all 0.3s ease;
+    .meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
     }
 
-    .category-card:hover .category-arrow {
-      opacity: 1;
-      transform: translateX(6px);
+    .weight {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .price {
+      color: var(--accent-2);
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .empty,
+    .error-box {
+      margin-top: 20px;
+      padding: 32px 20px;
+      border-radius: 22px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(0,0,0,.4);
+      border: 1px dashed rgba(242,163,0,.25);
+      line-height: 1.5;
+    }
+
+    .error-box strong { color: var(--accent); }
+
+    .top-btn {
+      position: fixed;
+      right: 16px;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 40;
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #0d0c0a;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+
+    .top-btn.visible { display: block; }
+
+    @media (min-width: 480px) {
+      .item {
+        flex-direction: row;
+        text-align: left;
+        align-items: center;
+        padding: 24px;
+      }
+      .photo-wrap {
+        margin-bottom: 0;
+        margin-right: 20px;
+        width: 120px;
+        height: 120px;
+      }
+      .top-mark {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        width: auto;
+        margin-bottom: 0;
+      }
+      .meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="main-bg"></div>
 
-  <div class="container">
-    <header>
-      <h1>Категорії проектів</h1>
-    </header>
+  <main class="page">
+    <section class="hero" id="top">
+      <p class="hero-kicker">Парк Історії Землі</p>
+      <h1 class="hero-title">МЕНЮ</h1>
+      <p class="hero-note">Оберіть категорію та перегляньте актуальні позиції</p>
+    </section>
 
-    <main class="categories-grid">
-      <!-- Картка 1 -->
-      <a href="#" class="category-card">
-        <div class="category-number">01 //</div>
-        <div>
-          <h2 class="category-title">Архітектура</h2>
-          <p class="category-desc">Форма, простір та об'єм у сучасних концептах.</p>
-        </div>
-        <span class="category-arrow">→</span>
-      </a>
+    <div class="toolbar-wrap">
+      <div class="category-scroll">
+        <button class="scroll-btn" id="catLeft" type="button" aria-label="Категорії вліво">‹</button>
+        <nav class="tabs" id="tabs" aria-label="Категорії меню"></nav>
+        <button class="scroll-btn" id="catRight" type="button" aria-label="Категорії вправо">›</button>
+      </div>
+    </div>
 
-      <!-- Картка 2 -->
-      <a href="#" class="category-card">
-        <div class="category-number">02 //</div>
-        <div>
-          <h2 class="category-title">Айдентика</h2>
-          <p class="category-desc">Мінімалістичні візуальні системи та типографіка.</p>
-        </div>
-        <span class="category-arrow">→</span>
-      </a>
+    <div class="status" id="status">
+      <span>Завантаження меню...</span>
+    </div>
 
-      <!-- Картка 3 -->
-      <a href="#" class="category-card">
-        <div class="category-number">03 //</div>
-        <div>
-          <h2 class="category-title">Дизайн інтер'єру</h2>
-          <p class="category-desc">Ергономіка, текстури та монохромна естетика.</p>
-        </div>
-        <span class="category-arrow">→</span>
-      </a>
-    </main>
-  </div>
+    <section id="menuRoot"></section>
+  </main>
 
+  <button class="top-btn" id="topBtn" type="button" aria-label="Нагору">↑</button>
+
+  <script>
+    const SHEET_ID = "1GZerl_j73IJE7HO3VSS1w3PXCdqSjvjRkjtlyrNdJ0Q";
+    const SHEET_GID = "0";
+    const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
+
+    const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
+    const PAGE_BACKGROUND_COLUMN = "Фон сторінки";
+
+    const state = {
+      items: [],
+      filtered: [],
+      categories: [],
+      activeCategory: "Усе",
+      updatedAt: null,
+      isManualScrolling: false // прапорець для запобігання конфліктів скролу
+    };
+
+    const els = {
+      tabs: document.getElementById("tabs"),
+      menuRoot: document.getElementById("menuRoot"),
+      status: document.getElementById("status"),
+      topBtn: document.getElementById("topBtn"),
+      catLeft: document.getElementById("catLeft"),
+      catRight: document.getElementById("catRight")
+    };
+
+    function loadGoogleSheet() {
+      return new Promise((resolve, reject) => {
+        const previousGoogle = window.google;
+        const script = document.createElement("script");
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          reject(new Error("Google Sheets довго не відповідає"));
+        }, 12000);
+
+        function cleanup() {
+          window.clearTimeout(timeout);
+          script.remove();
+          if (previousGoogle === undefined) {
+            try { delete window.google; } catch (e) { window.google = undefined; }
+          } else {
+            window.google = previousGoogle;
+          }
+        }
+
+        window.google = window.google || {};
+        window.google.visualization = window.google.visualization || {};
+        window.google.visualization.Query = {
+          setResponse: data => {
+            cleanup();
+            if (!data || data.status === "error") {
+              const message = data?.errors?.[0]?.detailed_message || data?.errors?.[0]?.message || "Помилка читання таблиці";
+              reject(new Error(message));
+              return;
+            }
+            resolve(data);
+          }
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Не вдалося підключитися до Google Sheets"));
+        };
+
+        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json&_=${Date.now()}`;
+        document.head.appendChild(script);
+      });
+    }
+
+    function tableToRows(table) {
+      const headers = table.cols.map((col, index) => String(col.label || col.id || `Колонка ${index + 1}`).trim());
+      return table.rows.map(row => {
+        const object = {};
+        headers.forEach((header, index) => {
+          const cell = row.c[index];
+          object[header] = cell ? (cell.f ?? cell.v ?? "") : "";
+        });
+        return object;
+      });
+    }
+
+    function getValue(row, names) {
+      for (const name of names) {
+        if (Object.prototype.hasOwnProperty.call(row, name)) {
+          return String(row[name] ?? "").trim();
+        }
+      }
+      return "";
+    }
+
+    function normalize(row, index) {
+      return {
+        category: getValue(row, ["Категорія", "Category", "Розділ"]) || "Інше",
+        name: getValue(row, ["Назва", "Name", "Позиція"]),
+        description: getValue(row, ["Опис", "Description", "Склад"]),
+        weight: getValue(row, ["Вага", "Об'єм", "Обєм", "Weight", "Volume"]),
+        price: formatPrice(getValue(row, ["Ціна", "Price", "Вартість"])),
+        photo: getValue(row, ["Фото", "Photo", "Image", "Зображення"]),
+        status: getValue(row, ["Статус", "Status", "Активно"]).toLowerCase(),
+        badgeText: getBadgeText(row),
+        order: Number(String(getValue(row, ["Порядок", "Order", "Сортування"])).replace(",", ".")) || index + 1,
+        showPhoto: getPhotoVisibility(row)
+      };
+    }
+
+    function getBadgeText(row) {
+      const directBadge = getValue(row, ["Позначка", "Бейдж", "Мітка", "Label", "Badge"]);
+      if (directBadge) return directBadge;
+
+      const popular = getValue(row, ["Популярне", "Popular", "Хіт"]);
+      if (!popular) return "";
+
+      const normalized = popular.toLowerCase();
+      if (["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено", "off"].includes(normalized)) return "";
+      if (["так", "yes", "1", "true", "+"].includes(normalized)) return "Хіт";
+      return popular;
+    }
+
+    function getPhotoVisibility(row) {
+      const value = getValue(row, [PHOTO_VISIBILITY_COLUMN, "Фото показувати", "Показувати", "Show photo", "ShowPhoto"]);
+      if (!value) return true;
+      return !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено", "off"].includes(value.toLowerCase());
+    }
+
+    function getPageBackground(rows) {
+      for (const row of rows) {
+        const value = getValue(row, [PAGE_BACKGROUND_COLUMN, "Фон", "Фонове зображення", "Background", "Background image"]);
+        if (value) return value;
+      }
+      return "";
+    }
+
+    function applyPageBackground(url) {
+      const imageUrl = getImageUrl(url);
+      if (!imageUrl) {
+        document.documentElement.style.setProperty("--page-bg-image", "none");
+        return;
+      }
+      document.documentElement.style.setProperty("--page-bg-image", `url("${imageUrl.replaceAll('"', "%22")}")`);
+    }
+
+    function getImageUrl(url) {
+      const raw = String(url || "").trim();
+      if (!raw) return "";
+      const driveMatch = raw.match(/drive\.google\.com\/file\/d\/([^/]+)/) || raw.match(/[?&]id=([^&]+)/);
+      if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
+      }
+      return raw;
+    }
+
+    function formatPrice(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      if (/грн|₴|uah/i.test(raw)) return raw;
+      return raw + " грн";
+    }
+
+    async function loadMenu() {
+      try {
+        setStatus("Завантаження меню...");
+        els.menuRoot.innerHTML = "";
+
+        const data = await loadGoogleSheet();
+        const rows = tableToRows(data.table);
+        applyPageBackground(getPageBackground(rows));
+
+        const items = rows
+          .map(normalize)
+          .filter(item => item.name)
+          .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
+          .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
+
+        state.items = items;
+        state.categories = getCategoriesFromRows(items);
+        state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
+        state.updatedAt = new Date();
+
+        render();
+      } catch (error) {
+        console.error(error);
+        setStatus("Не вдалося завантажити меню.");
+        els.menuRoot.innerHTML = `
+          <div class="error-box">
+            <strong>Меню не завантажилось.</strong><br>
+            Перевір доступ до таблиці і назви колонок.
+          </div>
+        `;
+      }
+    }
+
+    function getCategoriesFromRows(items) {
+      const categories = [];
+      items.forEach(item => {
+        const category = String(item.category || "Інше").trim();
+        if (category && !categories.includes(category)) categories.push(category);
+      });
+      return ["Усе", ...categories];
+    }
+
+    function setStatus(text) {
+      els.status.innerHTML = `<span>${escapeHTML(text)}</span>`;
+    }
+
+    function applyFilters() {
+      state.filtered = state.items.filter(item => {
+        return state.activeCategory === "Усе" || item.category === state.activeCategory;
+      });
+    }
+
+    function render() {
+      applyFilters();
+      renderTabs();
+      renderStatus();
+      renderMenu();
+    }
+
+    function renderTabs() {
+      els.tabs.innerHTML = state.categories.map(category => `
+        <button class="tab ${category === state.activeCategory ? "active" : ""}" type="button" data-category="${escapeAttr(category)}">
+          ${escapeHTML(category)}
+        </button>
+      `).join("");
+    }
+
+    function renderStatus() {
+      const time = state.updatedAt
+        ? state.updatedAt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })
+        : "—";
+
+      els.status.innerHTML = `
+        <span><strong>${state.filtered.length}</strong> з ${state.items.length} позицій</span>
+        <span>Оновлено: ${time}</span>
+      `;
+    }
+
+    function renderMenu() {
+      if (!state.filtered.length) {
+        els.menuRoot.innerHTML = `<div class="empty">Нічого не знайдено.</div>`;
+        return;
+      }
+
+      const grouped = groupByCategory(state.filtered);
+
+      els.menuRoot.innerHTML = Object.entries(grouped).map(([category, items]) => `
+        <section class="category" id="cat-${slug(category)}" data-catname="${escapeAttr(category)}">
+          <div class="category-head">
+            <h2 class="category-title">${escapeHTML(category)}</h2>
+          </div>
+          <div class="grid">
+            ${items.map(renderItem).join("")}
+          </div>
+        </section>
+      `).join("");
+    }
+
+    function renderItem(item) {
+      const categoryAllowsPhoto = !NO_PHOTO_CATEGORIES.includes(String(item.category || "").trim().toLowerCase());
+      const showPhoto = categoryAllowsPhoto && item.showPhoto;
+      const topMark = item.badgeText
+        ? `<div class="badge">${escapeHTML(item.badgeText)}</div>`
+        : `<div class="dots"><i></i><i></i><i></i></div>`;
+
+      return `
+        <article class="item ${showPhoto ? "" : "no-photo"}">
+          <div class="top-mark">${topMark}</div>
+
+          ${showPhoto ? `
+            <div class="photo-wrap">
+              ${item.photo
+                ? `<img src="${escapeAttr(getImageUrl(item.photo))}" alt="${escapeAttr(item.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;photo-placeholder&quot;>Фото<br>страви</div>'">`
+                : `<div class="photo-placeholder">Фото<br>страви</div>`
+              }
+            </div>
+          ` : ""}
+
+          <div class="item-content">
+            <h3 class="item-title">${escapeHTML(item.name)}</h3>
+            ${item.description ? `<p class="item-desc">${escapeHTML(item.description)}</p>` : ""}
+            <div class="meta">
+              ${item.weight ? `<span class="weight">${escapeHTML(item.weight)}</span>` : ""}
+              ${item.price ? `<span class="price">${escapeHTML(item.price)}</span>` : ""}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function groupByCategory(items) {
+      return items.reduce((acc, item) => {
+        if (!acc[item.category]) acc[item.category] = [];
+        acc[item.category].push(item);
+        return acc;
+      }, {});
+    }
+
+    function slug(value) {
+      return String(value)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-zа-яіїєґ0-9]+/gi, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHTML(value).replaceAll("`", "&#096;");
+    }
+
+    // НОВА ЛОГІКА КЛІКУ: плавний скрол до блоку та центрування табу
+    els.tabs.addEventListener("click", event => {
+      const button = event.target.closest(".tab");
+      if (!button) return;
+
+      const chosenCategory = button.dataset.category;
+      state.activeCategory = chosenCategory;
+
+      if (chosenCategory === "Усе") {
+        render();
+        window.scrollTo({ top: document.querySelector(".toolbar-wrap").offsetTop, behavior: "smooth" });
+      } else {
+        // Якщо обрано конкретну категорію — перемикаємо стан і скролимо до неї
+        state.isManualScrolling = true;
+        render();
+        
+        const targetSection = document.getElementById(`cat-${slug(chosenCategory)}`);
+        if (targetSection) {
+          const topOffset = targetSection.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: topOffset, behavior: "smooth" });
+        }
+
+        const activeTab = els.tabs.querySelector(`[data-category="${escapeAttr(chosenCategory)}"]`);
+        if (activeTab) {
+          activeTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        }
+
+        // Знімаємо блокування після завершення анімації скролу
+        setTimeout(() => { state.isManualScrolling = false; }, 800);
+      }
+    });
+
+    // АВТОМАТИЧНЕ ПЕРЕМИКАННЯ ТАБІВ ПРИ СКРОЛІ СТОРІНКИ (Scroll Spy)
+    window.addEventListener("scroll", () => {
+      els.topBtn.classList.toggle("visible", window.scrollY > 420);
+
+      if (state.isManualScrolling || state.activeCategory !== "Усе") return;
+
+      const categories = document.querySelectorAll(".category");
+      let currentCatName = "";
+
+      categories.forEach(section => {
+        const top = section.getBoundingClientRect().top;
+        // Якщо заголовок секції підійшов близько до меню (у межах 120px)
+        if (top <= 120) {
+          currentCatName = section.dataset.catname;
+        }
+      });
+
+      if (currentCatName) {
+        const allTabs = els.tabs.querySelectorAll(".tab");
+        allTabs.forEach(tab => {
+          if (tab.dataset.category === currentCatName) {
+            if (!tab.classList.contains("active")) {
+              allTabs.forEach(t => t.classList.remove("active"));
+              tab.classList.add("active");
+              tab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+            }
+          }
+        });
+      }
+    });
+
+    els.tabs.addEventListener("wheel", event => {
+      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+        event.preventDefault();
+        els.tabs.scrollLeft += event.deltaY;
+      }
+    }, { passive: false });
+
+    els.catLeft.addEventListener("click", () => {
+      els.tabs.scrollBy({ left: -200, behavior: "smooth" });
+    });
+
+    els.catRight.addEventListener("click", () => {
+      els.tabs.scrollBy({ left: 200, behavior: "smooth" });
+    });
+
+    els.topBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    loadMenu();
+  </script>
 </body>
 </html>
