@@ -2,7 +2,6 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Меню — Парк Історії Землі</title>
 
@@ -20,7 +19,6 @@
       --radius: 24px;
       --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
       --max: 620px;
-      --page-bg-image: none;
     }
 
     * { box-sizing: border-box; }
@@ -38,15 +36,11 @@
       background-color: var(--bg);
       background-image:
         linear-gradient(rgba(7,7,6,.78), rgba(6,6,5,.96)),
-        var(--page-bg-image),
         radial-gradient(ellipse at 18% 8%, rgba(242,163,0,.12), transparent 26%),
         radial-gradient(ellipse at 90% 24%, rgba(255,255,255,.055), transparent 32%),
         repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 74px),
         repeating-linear-gradient(8deg, rgba(255,255,255,.018) 0 2px, transparent 2px 18px),
         repeating-linear-gradient(0deg, var(--wood-1) 0 36px, #100e0c 36px 74px, var(--wood-2) 74px 114px);
-      background-size: auto, cover, auto, auto, auto, auto, auto;
-      background-position: center, center, center, center, center, center, center;
-      background-repeat: repeat, no-repeat, repeat, repeat, repeat, repeat, repeat;
       background-attachment: fixed;
       overflow-x: hidden;
     }
@@ -460,8 +454,10 @@
     const SHEET_ID = "1GZerl_j73IJE7HO3VSS1w3PXCdqSjvjRkjtlyrNdJ0Q";
     const SHEET_GID = "0";
     const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
+
+    // Щоб вмикати/вимикати фото через таблицю, додай колонку "Показувати фото".
+    // Значення для вимкнення: ні, no, false, 0, hidden, вимкнено.
     const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
-    const BACKGROUND_IMAGE_COLUMN = "Фон сторінки";
 
     const state = {
       items: [],
@@ -480,28 +476,7 @@
       catRight: document.getElementById("catRight")
     };
 
-    function hasAppsScriptBridge() {
-      return typeof google !== "undefined" && google.script && google.script.run;
-    }
-
-    function loadMenu() {
-      setStatus("Завантаження меню...");
-      els.menuRoot.innerHTML = "";
-
-      if (hasAppsScriptBridge()) {
-        google.script.run
-          .withSuccessHandler(handleRowsLoaded)
-          .withFailureHandler(handleLoadError)
-          .getMenuItems();
-        return;
-      }
-
-      loadMenuFromPublicSheet()
-        .then(handleRowsLoaded)
-        .catch(handleLoadError);
-    }
-
-    function loadMenuFromPublicSheet() {
+    function loadGoogleSheet() {
       return new Promise((resolve, reject) => {
         const previousGoogle = window.google;
         const script = document.createElement("script");
@@ -514,7 +489,7 @@
           window.clearTimeout(timeout);
           script.remove();
           if (previousGoogle === undefined) {
-            try { delete window.google; } catch (error) { window.google = undefined; }
+            try { delete window.google; } catch (e) { window.google = undefined; }
           } else {
             window.google = previousGoogle;
           }
@@ -530,7 +505,7 @@
               reject(new Error(message));
               return;
             }
-            resolve(tableToRows(data.table));
+            resolve(data);
           }
         };
 
@@ -556,35 +531,6 @@
       });
     }
 
-    function handleRowsLoaded(rows) {
-      applyPageBackground(rows);
-
-      const items = rows
-        .map(normalize)
-        .filter(item => item.name)
-        .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
-        .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
-
-      state.items = items;
-      state.categories = getCategoriesFromRows(items);
-      state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
-      state.updatedAt = new Date();
-
-      render();
-    }
-
-    function handleLoadError(error) {
-      console.error(error);
-      setStatus("Не вдалося завантажити меню.");
-      els.menuRoot.innerHTML = `
-        <div class="error-box">
-          <strong>Меню не завантажилось.</strong><br>
-          Якщо сторінка запущена в Apps Script — перевір Code.gs.<br>
-          Якщо сторінка відкрита як звичайний HTML — перевір доступ до Google Sheets за посиланням.
-        </div>
-      `;
-    }
-
     function getValue(row, names) {
       for (const name of names) {
         if (Object.prototype.hasOwnProperty.call(row, name)) {
@@ -607,24 +553,6 @@
         order: Number(String(getValue(row, ["Порядок", "Order", "Сортування"])).replace(",", ".")) || index + 1,
         showPhoto: getPhotoVisibility(row)
       };
-    }
-
-    function applyPageBackground(rows) {
-      const rawUrl = rows
-        .map(row => getValue(row, [BACKGROUND_IMAGE_COLUMN, "Фон", "Фонове зображення", "Background", "Background image"]))
-        .find(value => value);
-
-      const imageUrl = getImageUrl(rawUrl || "");
-      document.documentElement.style.setProperty(
-        "--page-bg-image",
-        imageUrl ? `url("${escapeCssUrl(imageUrl)}")` : "none"
-      );
-    }
-
-    function escapeCssUrl(value) {
-      return String(value || "")
-        .replace(/\\/g, "\\\\")
-        .replace(/"/g, "\\\"");
     }
 
     function getBadgeText(row) {
@@ -663,6 +591,38 @@
       if (!raw) return "";
       if (/грн|₴|uah/i.test(raw)) return raw;
       return raw + " грн";
+    }
+
+    async function loadMenu() {
+      try {
+        setStatus("Завантаження меню...");
+        els.menuRoot.innerHTML = "";
+
+        const data = await loadGoogleSheet();
+        const rows = tableToRows(data.table);
+
+        const items = rows
+          .map(normalize)
+          .filter(item => item.name)
+          .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
+          .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
+
+        state.items = items;
+        state.categories = getCategoriesFromRows(items);
+        state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
+        state.updatedAt = new Date();
+
+        render();
+      } catch (error) {
+        console.error(error);
+        setStatus("Не вдалося завантажити меню.");
+        els.menuRoot.innerHTML = `
+          <div class="error-box">
+            <strong>Меню не завантажилось.</strong><br>
+            Перевір доступ до таблиці і назви колонок.
+          </div>
+        `;
+      }
     }
 
     function getCategoriesFromRows(items) {
@@ -791,16 +751,6 @@
       return escapeHTML(value).replaceAll("`", "&#096;");
     }
 
-    function runTests() {
-      console.assert(getImageUrl("https://drive.google.com/file/d/abc123/view?usp=sharing").includes("id=abc123"), "Drive file URL converts to thumbnail URL");
-      console.assert(formatPrice("120") === "120 грн", "Numeric price gets грн suffix");
-      console.assert(formatPrice("120 грн") === "120 грн", "Existing грн suffix is preserved");
-      console.assert(getBadgeText({ "Позначка": "Акція" }) === "Акція", "Custom badge is used first");
-      console.assert(getBadgeText({ "Популярне": "так" }) === "Хіт", "Popular yes becomes Хіт");
-      console.assert(getPhotoVisibility({ "Показувати фото": "ні" }) === false, "Photo can be disabled from sheet");
-      console.assert(getPhotoVisibility({ "Показувати фото": "так" }) === true, "Photo can be enabled from sheet");
-    }
-
     els.tabs.addEventListener("click", event => {
       const button = event.target.closest(".tab");
       if (!button) return;
@@ -836,7 +786,6 @@
       els.topBtn.classList.toggle("visible", window.scrollY > 420);
     });
 
-    runTests();
     loadMenu();
   </script>
 </body>
