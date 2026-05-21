@@ -7,8 +7,8 @@
 
   <style>
     :root {
-      --bg: #141414;
-      --panel: rgba(18, 18, 18, 0.92);
+      --bg: #101010;
+      --panel: rgba(14, 14, 14, 0.94);
       --text: #f5f5f5;
       --muted: #b8b8b8;
       --accent: #f2a300;
@@ -26,9 +26,15 @@
       min-height: 100vh;
       color: var(--text);
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background:
-        linear-gradient(rgba(16,16,16,.83), rgba(10,10,10,.94)),
-        url("https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1800&q=80") center/cover fixed;
+      background-color: #101010;
+      background-image:
+        linear-gradient(rgba(10,10,10,.78), rgba(7,7,7,.96)),
+        radial-gradient(ellipse at 12% 18%, rgba(255,255,255,.06), transparent 28%),
+        radial-gradient(ellipse at 82% 36%, rgba(242,163,0,.055), transparent 32%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.028) 0 1px, transparent 1px 86px),
+        repeating-linear-gradient(7deg, rgba(255,255,255,.018) 0 2px, transparent 2px 22px),
+        repeating-linear-gradient(0deg, #181818 0 34px, #111 34px 68px, #1d1d1d 68px 104px);
+      background-attachment: fixed;
       overflow-x: hidden;
     }
 
@@ -38,16 +44,14 @@
       inset: 0;
       z-index: -1;
       pointer-events: none;
-      opacity: 0.18;
+      opacity: .3;
       background:
-        repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 80px),
-        repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 8px);
+        linear-gradient(90deg, transparent 0 18%, rgba(0,0,0,.18) 18% 19%, transparent 19% 40%, rgba(0,0,0,.2) 40% 41%, transparent 41% 64%, rgba(0,0,0,.18) 64% 65%, transparent 65%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 1px, transparent 1px 13px);
       mix-blend-mode: soft-light;
     }
 
-    button {
-      font: inherit;
-    }
+    button { font: inherit; }
 
     .page {
       width: min(var(--max), calc(100% - 20px));
@@ -55,40 +59,28 @@
       padding: 12px 0 64px;
     }
 
-    /* МЕНША ШАПКА */
     .hero {
       position: relative;
       overflow: hidden;
       text-align: center;
-      padding: 18px 16px 16px;
-      border-radius: 24px;
+      padding: 14px 16px 12px;
+      border-radius: 22px;
       background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.42));
       border: 1px solid rgba(255,255,255,.06);
       box-shadow: var(--shadow);
     }
 
-    .hero::before {
-      display: none;
-    }
+    .hero::before { display: none; }
 
     .hero-title {
       position: relative;
       z-index: 1;
       margin: 0;
-      font-size: clamp(28px, 7vw, 56px);
+      font-size: clamp(28px, 7vw, 52px);
       line-height: .95;
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
-    }
-
-    .hero-subtitle {
-      position: relative;
-      z-index: 1;
-      margin: 8px 0 0;
-      font-size: clamp(14px, 2.6vw, 20px);
-      color: #ededed;
-      font-weight: 500;
     }
 
     .toolbar-wrap {
@@ -96,25 +88,46 @@
       top: 0;
       z-index: 20;
       margin-top: 12px;
-      padding: 10px 0 10px;
+      padding: 10px 0;
       background: linear-gradient(180deg, rgba(14,14,14,.98), rgba(14,14,14,.78));
       backdrop-filter: blur(10px);
+    }
+
+    .category-scroll {
+      display: grid;
+      grid-template-columns: 38px 1fr 38px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .scroll-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(242,163,0,.35);
+      border-radius: 50%;
+      background: rgba(255,255,255,.07);
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
     }
 
     .tabs {
       display: flex;
       gap: 8px;
       overflow-x: auto;
+      overflow-y: hidden;
       scrollbar-width: none;
+      scroll-behavior: smooth;
+      scroll-snap-type: x proximity;
       padding-bottom: 2px;
     }
 
-    .tabs::-webkit-scrollbar {
-      display: none;
-    }
+    .tabs::-webkit-scrollbar { display: none; }
 
     .tab {
       flex: 0 0 auto;
+      scroll-snap-align: start;
       border: 1px solid rgba(255,255,255,.09);
       border-radius: 999px;
       background: rgba(255,255,255,.08);
@@ -142,9 +155,7 @@
       margin: 14px 0 6px;
     }
 
-    .status strong {
-      color: var(--text);
-    }
+    .status strong { color: var(--text); }
 
     .category {
       margin-top: 28px;
@@ -178,7 +189,6 @@
       padding-bottom: 4px;
     }
 
-    /* ОДНА КОЛОНКА */
     .grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -186,16 +196,17 @@
     }
 
     .item {
+      position: relative;
       display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 18px;
+      grid-template-columns: 210px 1fr;
+      gap: 22px;
       align-items: center;
-      min-height: 174px;
+      min-height: 230px;
       padding: 16px;
       border-radius: var(--radius);
       border: 1px solid rgba(255,255,255,.06);
       background:
-        radial-gradient(circle at 100% 0%, rgba(242,163,0,.10), transparent 30%),
+        radial-gradient(circle at 100% 0%, rgba(242,163,0,.08), transparent 30%),
         var(--panel);
       box-shadow: var(--shadow);
     }
@@ -206,8 +217,8 @@
     }
 
     .photo-wrap {
-      width: 150px;
-      height: 150px;
+      width: 210px;
+      height: 210px;
       border-radius: 50%;
       overflow: hidden;
       border: 3px solid var(--accent);
@@ -235,6 +246,18 @@
       padding: 10px;
     }
 
+    .item-content {
+      position: relative;
+      max-width: 560px;
+      width: 100%;
+      padding-right: 76px;
+    }
+
+    .item.no-photo .item-content {
+      max-width: 620px;
+      padding-right: 76px;
+    }
+
     .dots {
       display: flex;
       gap: 5px;
@@ -250,12 +273,14 @@
     }
 
     .badge {
-      display: inline-block;
-      margin: 0 0 8px;
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 0;
       border-radius: 999px;
       background: var(--accent);
       color: #171717;
-      padding: 5px 9px;
+      padding: 6px 10px;
       font-size: 11px;
       line-height: 1;
       text-transform: uppercase;
@@ -271,6 +296,7 @@
     }
 
     .item-desc {
+      max-width: 470px;
       margin: 7px 0 12px;
       color: #d8d8d8;
       font-size: 14px;
@@ -309,9 +335,7 @@
       line-height: 1.45;
     }
 
-    .error-box strong {
-      color: var(--accent);
-    }
+    .error-box strong { color: var(--accent); }
 
     .top-btn {
       position: fixed;
@@ -330,20 +354,27 @@
       box-shadow: var(--shadow);
     }
 
-    .top-btn.visible {
-      display: block;
-    }
+    .top-btn.visible { display: block; }
 
     @media (max-width: 620px) {
-      .page {
-        width: min(100% - 16px, var(--max));
+      .page { width: min(100% - 16px, var(--max)); }
+
+      .category-scroll {
+        grid-template-columns: 32px 1fr 32px;
+        gap: 6px;
+      }
+
+      .scroll-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
       }
 
       .item {
-        grid-template-columns: 118px 1fr;
+        grid-template-columns: 140px 1fr;
         gap: 14px;
         padding: 12px;
-        min-height: 146px;
+        min-height: 168px;
       }
 
       .item.no-photo {
@@ -352,13 +383,21 @@
       }
 
       .photo-wrap {
-        width: 118px;
-        height: 118px;
+        width: 140px;
+        height: 140px;
       }
 
-      .item-title {
-        font-size: 19px;
+      .item-content,
+      .item.no-photo .item-content {
+        max-width: 100%;
+        padding-right: 58px;
       }
+
+      .item-desc {
+        max-width: 100%;
+      }
+
+      .item-title { font-size: 19px; }
 
       .category-head {
         flex-direction: column;
@@ -366,9 +405,7 @@
         gap: 4px;
       }
 
-      .category-count {
-        padding-bottom: 0;
-      }
+      .category-count { padding-bottom: 0; }
     }
 
     @media (max-width: 420px) {
@@ -377,12 +414,18 @@
       }
 
       .photo-wrap {
-        width: 128px;
-        height: 128px;
+        width: 170px;
+        height: 170px;
       }
 
-      .item.no-photo {
-        grid-template-columns: 1fr;
+      .item-content,
+      .item.no-photo .item-content {
+        padding-right: 0;
+      }
+
+      .badge {
+        top: -4px;
+        right: 0;
       }
     }
   </style>
@@ -391,11 +434,14 @@
   <main class="page">
     <section class="hero" id="top">
       <h1 class="hero-title">МЕНЮ</h1>
-      <p class="hero-subtitle">Парк Історії Землі</p>
     </section>
 
     <div class="toolbar-wrap">
-      <nav class="tabs" id="tabs" aria-label="Категорії меню"></nav>
+      <div class="category-scroll">
+        <button class="scroll-btn" id="catLeft" type="button" aria-label="Категорії вліво">‹</button>
+        <nav class="tabs" id="tabs" aria-label="Категорії меню"></nav>
+        <button class="scroll-btn" id="catRight" type="button" aria-label="Категорії вправо">›</button>
+      </div>
     </div>
 
     <div class="status" id="status">
@@ -410,6 +456,7 @@
   <script>
     const SHEET_ID = "1GZerl_j73IJE7HO3VSS1w3PXCdqSjvjRkjtlyrNdJ0Q";
     const SHEET_GID = "0";
+    const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
 
     const state = {
       items: [],
@@ -423,10 +470,10 @@
       tabs: document.getElementById("tabs"),
       menuRoot: document.getElementById("menuRoot"),
       status: document.getElementById("status"),
-      topBtn: document.getElementById("topBtn")
+      topBtn: document.getElementById("topBtn"),
+      catLeft: document.getElementById("catLeft"),
+      catRight: document.getElementById("catRight")
     };
-
-    const NO_PHOTO_CATEGORIES = ["міцні напої"];
 
     function loadGoogleSheet() {
       return new Promise((resolve, reject) => {
@@ -530,7 +577,7 @@
           .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
 
         state.items = items;
-        state.categories = ["Усе", ...Array.from(new Set(items.map(item => item.category)))];
+        state.categories = getCategoriesFromRows(items);
         state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
         state.updatedAt = new Date();
 
@@ -545,6 +592,15 @@
           </div>
         `;
       }
+    }
+
+    function getCategoriesFromRows(items) {
+      const categories = [];
+      items.forEach(item => {
+        const category = String(item.category || "Інше").trim();
+        if (category && !categories.includes(category)) categories.push(category);
+      });
+      return ["Усе", ...categories];
     }
 
     function setStatus(text) {
@@ -605,7 +661,7 @@
     }
 
     function renderItem(item) {
-      const showPhoto = !NO_PHOTO_CATEGORIES.includes(normalizeText(item.category));
+      const showPhoto = !NO_PHOTO_CATEGORIES.includes(String(item.category || "").trim().toLowerCase());
 
       return `
         <article class="item ${showPhoto ? "" : "no-photo"}">
@@ -619,8 +675,8 @@
           ` : ""}
 
           <div class="item-content">
-            <div class="dots"><i></i><i></i><i></i></div>
             ${item.popular ? `<div class="badge">Хіт</div>` : ""}
+            <div class="dots"><i></i><i></i><i></i></div>
             <h3 class="item-title">${escapeHTML(item.name)}</h3>
             ${item.description ? `<p class="item-desc">${escapeHTML(item.description)}</p>` : ""}
             <div class="meta">
@@ -630,13 +686,6 @@
           </div>
         </article>
       `;
-    }
-
-    function normalizeText(value) {
-      return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ");
     }
 
     function groupByCategory(items) {
@@ -673,10 +722,26 @@
       if (!button) return;
       state.activeCategory = button.dataset.category;
       render();
+      button.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
       window.scrollTo({
         top: document.querySelector(".toolbar-wrap").offsetTop,
         behavior: "smooth"
       });
+    });
+
+    els.tabs.addEventListener("wheel", event => {
+      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+        event.preventDefault();
+        els.tabs.scrollLeft += event.deltaY;
+      }
+    }, { passive: false });
+
+    els.catLeft.addEventListener("click", () => {
+      els.tabs.scrollBy({ left: -260, behavior: "smooth" });
+    });
+
+    els.catRight.addEventListener("click", () => {
+      els.tabs.scrollBy({ left: 260, behavior: "smooth" });
     });
 
     els.topBtn.addEventListener("click", () => {
