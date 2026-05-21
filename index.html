@@ -10,14 +10,14 @@
       --bg: #0f0f0d;
       --wood-1: #171411;
       --wood-2: #201b16;
-      --panel: rgba(18, 18, 16, 0.42);
+      --panel: rgba(18, 18, 16, 0.64);
       --text: #f7f3ea;
       --muted: #b9b1a4;
       --accent: #f2a300;
       --accent-2: #ffc44a;
       --line: rgba(242, 163, 0, 0.26);
       --radius: 24px;
-      --shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+      --shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
       --max: 620px;
       --page-bg-image: none;
     }
@@ -36,35 +36,18 @@
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       background-color: var(--bg);
       background-image:
-        linear-gradient(rgba(7,7,6,.44), rgba(6,6,5,.68)),
+        linear-gradient(rgba(7,7,6,.66), rgba(6,6,5,.88)),
+        var(--page-bg-image),
         radial-gradient(ellipse at 18% 8%, rgba(242,163,0,.12), transparent 26%),
         radial-gradient(ellipse at 90% 24%, rgba(255,255,255,.055), transparent 32%),
         repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 74px),
         repeating-linear-gradient(8deg, rgba(255,255,255,.018) 0 2px, transparent 2px 18px),
         repeating-linear-gradient(0deg, var(--wood-1) 0 36px, #100e0c 36px 74px, var(--wood-2) 74px 114px);
-      background-size: auto, auto, auto, auto, auto, auto;
-      background-position: center, center, center, center, center, center;
-      background-repeat: no-repeat, repeat, repeat, repeat, repeat, repeat;
+      background-size: auto, cover, auto, auto, auto, auto, auto;
+      background-position: center, center, center, center, center, center, center;
+      background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, repeat, repeat;
       background-attachment: fixed;
       overflow-x: hidden;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
-      z-index: -2;
-      pointer-events: none;
-      background-image: var(--page-bg-image);
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-      transform: translateZ(0);
-      will-change: transform;
     }
 
     body::before {
@@ -96,7 +79,7 @@
       background:
         radial-gradient(circle at 12% 0%, rgba(242,163,0,.16), transparent 34%),
         linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.16)),
-        rgba(12,12,11,.38);
+        rgba(12,12,11,.56);
       border: 1px solid rgba(255,255,255,.08);
       box-shadow: var(--shadow);
       text-align: center;
@@ -139,7 +122,7 @@
       z-index: 20;
       margin: 10px -9px 0;
       padding: 10px 9px 9px;
-      background: linear-gradient(180deg, rgba(12,12,11,.72), rgba(12,12,11,.48));
+      background: linear-gradient(180deg, rgba(12,12,11,.86), rgba(12,12,11,.66));
       backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(255,255,255,.045);
     }
@@ -255,14 +238,14 @@
       min-height: auto;
       padding: 30px 22px 42px;
       border-radius: 30px;
-      border: 1px solid rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.10);
       background:
-        radial-gradient(circle at 100% 0%, rgba(242,163,0,.07), transparent 30%),
-        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.01) 42%),
+        radial-gradient(circle at 100% 0%, rgba(242,163,0,.08), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.015) 42%),
         var(--panel);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
 
     .item.no-photo {
@@ -429,34 +412,6 @@
     .top-btn.visible { display: block; }
 
     @media (max-width: 430px) {
-      :root {
-        --panel: rgba(18, 18, 16, 0.34);
-      }
-
-      body {
-        background-image:
-          linear-gradient(rgba(7,7,6,.32), rgba(6,6,5,.58)),
-          radial-gradient(ellipse at 18% 8%, rgba(242,163,0,.10), transparent 26%),
-          radial-gradient(ellipse at 90% 24%, rgba(255,255,255,.06), transparent 32%),
-          repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 74px),
-          repeating-linear-gradient(8deg, rgba(255,255,255,.016) 0 2px, transparent 2px 18px),
-          repeating-linear-gradient(0deg, var(--wood-1) 0 36px, #100e0c 36px 74px, var(--wood-2) 74px 114px);
-        background-attachment: scroll;
-      }
-
-      body::after {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        height: 100dvh;
-        min-height: 100vh;
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-      }
-
       .page { width: min(100% - 14px, var(--max)); }
 
       .item {
@@ -639,7 +594,7 @@
     }
 
     function applyPageBackground(url) {
-      const imageUrl = getBackgroundImageUrl(url);
+      const imageUrl = getImageUrl(url);
       if (!imageUrl) {
         document.documentElement.style.setProperty("--page-bg-image", "none");
         return;
@@ -648,31 +603,13 @@
       document.documentElement.style.setProperty("--page-bg-image", `url("${imageUrl.replaceAll('"', "%22")}")`);
     }
 
-    function getDriveFileId(url) {
-      const raw = String(url || "").trim();
-      const driveMatch = raw.match(/drive\.google\.com\/file\/d\/([^/]+)/) || raw.match(/[?&]id=([^&]+)/);
-      return driveMatch && driveMatch[1] ? driveMatch[1] : "";
-    }
-
     function getImageUrl(url) {
       const raw = String(url || "").trim();
       if (!raw) return "";
 
-      const driveId = getDriveFileId(raw);
-      if (driveId) {
-        return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
-      }
-
-      return raw;
-    }
-
-    function getBackgroundImageUrl(url) {
-      const raw = String(url || "").trim();
-      if (!raw) return "";
-
-      const driveId = getDriveFileId(raw);
-      if (driveId) {
-        return `https://drive.google.com/thumbnail?id=${driveId}&sz=w2400`;
+      const driveMatch = raw.match(/drive\.google\.com\/file\/d\/([^/]+)/) || raw.match(/[?&]id=([^&]+)/);
+      if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
       }
 
       return raw;
