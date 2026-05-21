@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Меню — Парк Історії Землі</title>
+  <meta name="description" content="QR-меню Парк Історії Землі" />
+
+  <style>
+    :root {
+      --bg: #171717;
+      --panel: rgba(23, 23, 23, 0.9);
+      --panel-light: rgba(255, 255, 255, 0.075);
+      --text: #f5f5f5;
+      --muted: #b8b8b8;
+      --accent: #f3a400;
+      --accent-soft: rgba(243, 164, 0, 0.25);
+      --line: rgba(243, 164, 0, 0.28);
+      --shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+      --radius: 24px;
+      --max: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background:
+        linear-gradient(rgba(18,18,18,.82), rgba(13,13,13,.94)),
+        url("https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=1800&q=80") center/cover fixed;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.32;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 72px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 9px);
+      mix-blend-mode: soft-light;
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      width: min(var(--max), calc(100% - 24px));
+      margin: 0 auto;
+      padding: 16px 0 72px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 290px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 44px 20px 38px;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(243,164,0,.18), transparent 32%),
+        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.55));
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 22px 5%;
+      border: 4px solid rgba(243,164,0,.9);
+      border-radius: 999px;
+      transform: rotate(-4deg);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -32px;
+      bottom: 32px;
+      width: 92px;
+      height: 92px;
+      border: 10px solid rgba(243,164,0,.9);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: clamp(54px, 14vw, 132px);
+      line-height: .86;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .hero-subtitle {
+      margin: 18px 0 0;
+      font-size: clamp(17px, 3vw, 30px);
+      line-height: 1.15;
+      font-weight: 500;
+      letter-spacing: .025em;
+    }
+
+    .toolbar-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin-top: 16px;
+      padding: 12px 0 10px;
+      background: linear-gradient(180deg, rgba(18,18,18,.98), rgba(18,18,18,.78));
+      backdrop-filter: blur(12px);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search { position: relative; }
+
+    .search::before {
+      content: "⌕";
+      position: absolute;
+      left: 17px;
+      top: 50%;
+      transform: translateY(-54%);
+      color: var(--accent);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .search input {
+      width: 100%;
+      height: 50px;
+      border: 1px solid rgba(255,255,255,.08);
+      outline: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 0 18px 0 48px;
+      font-size: 15px;
+    }
+
+    .search input::placeholder { color: rgba(255,255,255,.52); }
+
+    .refresh-btn {
+      height: 50px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #171717;
+      padding: 0 20px;
+      cursor: pointer;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-top: 11px;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #171717;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px 18px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      margin: 16px 0 8px;
+      font-size: 14px;
+    }
+
+    .status strong { color: var(--text); }
+
+    .category {
+      margin-top: 34px;
+      scroll-margin-top: 145px;
+    }
+
+    .category-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 14px;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .category-title {
+      margin: 0;
+      color: var(--accent);
+      font-size: clamp(29px, 5.6vw, 56px);
+      line-height: .95;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 800;
+    }
+
+    .category-count {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+      padding-bottom: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 124px 1fr;
+      gap: 16px;
+      align-items: center;
+      min-height: 154px;
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.07);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(243,164,0,.10), transparent 32%),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .photo-wrap {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--accent);
+      background:
+        radial-gradient(circle at 30% 25%, #565656, #2c2c2c 60%, #171717 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 26px rgba(0,0,0,.36);
+    }
+
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-placeholder {
+      color: rgba(255,255,255,.78);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.25;
+      padding: 12px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .dots i {
+      width: 8px;
+      height: 8px;
+      display: block;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .badge {
+      display: inline-block;
+      width: fit-content;
+      margin: 0 0 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #171717;
+      padding: 5px 9px;
+      font-size: 11px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 700;
+    }
+
+    .item-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.05;
+      font-weight: 700;
+    }
+
+    .item-desc {
+      margin: 8px 0 14px;
+      color: #d8d8d8;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      align-items: baseline;
+    }
+
+    .weight {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .price {
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .empty, .error-box {
+      margin-top: 18px;
+      padding: 26px 18px;
+      border-radius: 24px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(0,0,0,.28);
+      border: 1px dashed rgba(255,255,255,.17);
+      line-height: 1.45;
+    }
+
+    .error-box strong { color: var(--accent); }
+
+    .top-btn {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 40;
+      width: 50px;
+      height: 50px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #171717;
+      font-size: 23px;
+      cursor: pointer;
+      display: none;
+      box-shadow: var(--shadow);
+    }
+
+    .top-btn.visible { display: block; }
+
+    @media (max-width: 840px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .page { width: min(100% - 18px, var(--max)); }
+      .toolbar { grid-template-columns: 1fr; }
+      .refresh-btn { display: none; }
+      .item { grid-template-columns: 98px 1fr; gap: 12px; padding: 14px; }
+      .photo-wrap { width: 98px; height: 98px; }
+      .item-title { font-size: 21px; }
+      .category-head { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .category-count { padding-bottom: 0; }
+    }
+
+    @media (max-width: 420px) {
+      .item { grid-template-columns: 1fr; }
+      .photo-wrap { width: 112px; height: 112px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" id="top">
+      <div class="hero-content">
+        <h1 class="hero-title">МЕНЮ</h1>
+        <p class="hero-subtitle">Парк Історії Землі</p>
+      </div>
+    </section>
+
+    <div class="toolbar-wrap">
+      <div class="toolbar">
+        <label class="search">
+          <input id="searchInput" type="search" placeholder="Пошук по меню..." autocomplete="off" />
+        </label>
+        <button class="refresh-btn" id="refreshBtn" type="button">Оновити</button>
+      </div>
+      <nav class="tabs" id="tabs" aria-label="Категорії меню"></nav>
+    </div>
+
+    <div class="status" id="status">
+      <span>Завантаження меню...</span>
+    </div>
+
+    <section id="menuRoot"></section>
+  </main>
+
+  <button class="top-btn" id="topBtn" type="button" aria-label="Нагору">↑</button>
+
+  <script>
+    const SHEET_ID = "1GZerl_j73IJE7HO3VSS1w3PXCdqSjvjRkjtlyrNdJ0Q";
+    const SHEET_GID = "0";
+
+    const state = {
+      items: [],
+      filtered: [],
+      categories: [],
+      activeCategory: "Усе",
+      query: "",
+      updatedAt: null
+    };
+
+    const els = {
+      tabs: document.getElementById("tabs"),
+      menuRoot: document.getElementById("menuRoot"),
+      searchInput: document.getElementById("searchInput"),
+      refreshBtn: document.getElementById("refreshBtn"),
+      status: document.getElementById("status"),
+      topBtn: document.getElementById("topBtn")
+    };
+
+    function loadGoogleSheet() {
+      return new Promise((resolve, reject) => {
+        const previousGoogle = window.google;
+        const script = document.createElement("script");
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          reject(new Error("Google Sheets довго не відповідає"));
+        }, 12000);
+
+        function cleanup() {
+          window.clearTimeout(timeout);
+          script.remove();
+          if (previousGoogle === undefined) {
+            try { delete window.google; } catch (e) { window.google = undefined; }
+          } else {
+            window.google = previousGoogle;
+          }
+        }
+
+        window.google = window.google || {};
+        window.google.visualization = window.google.visualization || {};
+        window.google.visualization.Query = {
+          setResponse: data => {
+            cleanup();
+            if (!data || data.status === "error") {
+              const message = data?.errors?.[0]?.detailed_message || data?.errors?.[0]?.message || "Помилка читання таблиці";
+              reject(new Error(message));
+              return;
+            }
+            resolve(data);
+          }
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Не вдалося підключитися до Google Sheets"));
+        };
+
+        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json&_=${Date.now()}`;
+        document.head.appendChild(script);
+      });
+    }
+
+    function tableToRows(table) {
+      const headers = table.cols.map((col, index) => String(col.label || col.id || `Колонка ${index + 1}`).trim());
+      return table.rows.map(row => {
+        const object = {};
+        headers.forEach((header, index) => {
+          const cell = row.c[index];
+          object[header] = cell ? (cell.f ?? cell.v ?? "") : "";
+        });
+        return object;
+      });
+    }
+
+    function getValue(row, names) {
+      for (const name of names) {
+        if (Object.prototype.hasOwnProperty.call(row, name)) return String(row[name] ?? "").trim();
+      }
+      return "";
+    }
+
+    function normalize(row, index) {
+      return {
+        category: getValue(row, ["Категорія", "Category", "Розділ"]) || "Інше",
+        name: getValue(row, ["Назва", "Name", "Позиція"]),
+        description: getValue(row, ["Опис", "Description", "Склад"]),
+        weight: getValue(row, ["Вага", "Об'єм", "Обєм", "Weight", "Volume"]),
+        price: formatPrice(getValue(row, ["Ціна", "Price", "Вартість"])),
+        photo: getValue(row, ["Фото", "Photo", "Image", "Зображення"]),
+        status: getValue(row, ["Статус", "Status", "Активно"]).toLowerCase(),
+        popular: ["так", "yes", "1", "true", "+", "хіт", "hit"].includes(getValue(row, ["Популярне", "Popular", "Хіт"]).toLowerCase()),
+        order: Number(String(getValue(row, ["Порядок", "Order", "Сортування"])).replace(",", ".")) || index + 1
+      };
+    }
+
+    function formatPrice(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      if (/грн|₴|uah/i.test(raw)) return raw;
+      return raw + " грн";
+    }
+
+    async function loadMenu() {
+      try {
+        setStatus("Завантаження меню...");
+        els.menuRoot.innerHTML = "";
+
+        const data = await loadGoogleSheet();
+        const rows = tableToRows(data.table);
+
+        const items = rows
+          .map(normalize)
+          .filter(item => item.name)
+          .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
+          .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
+
+        state.items = items;
+        state.categories = ["Усе", ...Array.from(new Set(items.map(item => item.category)))];
+        state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
+        state.query = els.searchInput.value.trim().toLowerCase();
+        state.updatedAt = new Date();
+
+        render();
+      } catch (error) {
+        console.error(error);
+        setStatus("Не вдалося завантажити меню.");
+        els.menuRoot.innerHTML = `
+          <div class="error-box">
+            <strong>Меню не завантажилось.</strong><br>
+            Перевір, чи таблиця відкрита для перегляду за посиланням, і чи перший рядок містить колонки:<br>
+            Категорія, Назва, Опис, Вага, Ціна, Фото, Статус, Популярне, Порядок.
+          </div>
+        `;
+      }
+    }
+
+    function setStatus(text) {
+      els.status.innerHTML = `<span>${escapeHTML(text)}</span>`;
+    }
+
+    function applyFilters() {
+      const q = state.query.trim().toLowerCase();
+      state.filtered = state.items.filter(item => {
+        const byCategory = state.activeCategory === "Усе" || item.category === state.activeCategory;
+        const searchable = [item.category, item.name, item.description, item.weight, item.price].join(" ").toLowerCase();
+        return byCategory && (!q || searchable.includes(q));
+      });
+    }
+
+    function render() {
+      applyFilters();
+      renderTabs();
+      renderStatus();
+      renderMenu();
+    }
+
+    function renderTabs() {
+      els.tabs.innerHTML = state.categories.map(category => `
+        <button class="tab ${category === state.activeCategory ? "active" : ""}" type="button" data-category="${escapeAttr(category)}">
+          ${escapeHTML(category)}
+        </button>
+      `).join("");
+    }
+
+    function renderStatus() {
+      const time = state.updatedAt
+        ? state.updatedAt.toLocaleString("uk-UA", { dateStyle: "short", timeStyle: "short" })
+        : "—";
+
+      els.status.innerHTML = `
+        <span><strong>${state.filtered.length}</strong> з ${state.items.length} позицій</span>
+        <span>Оновлено: ${time}</span>
+      `;
+    }
+
+    function renderMenu() {
+      if (!state.filtered.length) {
+        els.menuRoot.innerHTML = `<div class="empty">Нічого не знайдено.</div>`;
+        return;
+      }
+
+      const grouped = groupByCategory(state.filtered);
+      els.menuRoot.innerHTML = Object.entries(grouped).map(([category, items]) => `
+        <section class="category" id="cat-${slug(category)}">
+          <div class="category-head">
+            <h2 class="category-title">${escapeHTML(category)}</h2>
+            <div class="category-count">${items.length} позицій</div>
+          </div>
+          <div class="grid">
+            ${items.map(renderItem).join("")}
+          </div>
+        </section>
+      `).join("");
+    }
+
+    function renderItem(item) {
+      return `
+        <article class="item">
+          <div class="photo-wrap">
+            ${item.photo
+              ? `<img src="${escapeAttr(item.photo)}" alt="${escapeAttr(item.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;photo-placeholder&quot;>Фото<br>страви</div>'">`
+              : `<div class="photo-placeholder">Фото<br>страви</div>`
+            }
+          </div>
+          <div class="item-content">
+            <div class="dots"><i></i><i></i><i></i></div>
+            ${item.popular ? `<div class="badge">Хіт</div>` : ""}
+            <h3 class="item-title">${escapeHTML(item.name)}</h3>
+            ${item.description ? `<p class="item-desc">${escapeHTML(item.description)}</p>` : ""}
+            <div class="meta">
+              ${item.weight ? `<span class="weight">${escapeHTML(item.weight)}</span>` : ""}
+              ${item.price ? `<span class="price">${escapeHTML(item.price)}</span>` : ""}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function groupByCategory(items) {
+      return items.reduce((acc, item) => {
+        if (!acc[item.category]) acc[item.category] = [];
+        acc[item.category].push(item);
+        return acc;
+      }, {});
+    }
+
+    function slug(value) {
+      return String(value)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-zа-яіїєґ0-9]+/gi, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHTML(value).replaceAll("`", "&#096;");
+    }
+
+    els.tabs.addEventListener("click", event => {
+      const button = event.target.closest(".tab");
+      if (!button) return;
+      state.activeCategory = button.dataset.category;
+      render();
+      window.scrollTo({ top: document.querySelector(".toolbar-wrap").offsetTop, behavior: "smooth" });
+    });
+
+    els.searchInput.addEventListener("input", event => {
+      state.query = event.target.value.trim().toLowerCase();
+      render();
+    });
+
+    els.refreshBtn.addEventListener("click", loadMenu);
+
+    els.topBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    window.addEventListener("scroll", () => {
+      els.topBtn.classList.toggle("visible", window.scrollY > 520);
+    });
+
+    loadMenu();
+  </script>
+</body>
+</html>
