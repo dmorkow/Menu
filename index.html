@@ -543,12 +543,23 @@
         price: formatPrice(getValue(row, ["Ціна", "Price", "Вартість"])),
         photo: getValue(row, ["Фото", "Photo", "Image", "Зображення"]),
         status: getValue(row, ["Статус", "Status", "Активно"]).toLowerCase(),
-        popular: ["так", "yes", "1", "true", "+", "хіт", "hit"].includes(
-          getValue(row, ["Популярне", "Popular", "Хіт"]).toLowerCase()
-        ),
+        badgeText: getBadgeText(row),
         order: Number(String(getValue(row, ["Порядок", "Order", "Сортування"])).replace(",", ".")) || index + 1,
         showPhoto: getPhotoVisibility(row)
       };
+    }
+
+    function getBadgeText(row) {
+      const directBadge = getValue(row, ["Позначка", "Бейдж", "Мітка", "Label", "Badge"]);
+      if (directBadge) return directBadge;
+
+      const popular = getValue(row, ["Популярне", "Popular", "Хіт"]);
+      if (!popular) return "";
+
+      const normalized = popular.toLowerCase();
+      if (["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено", "off"].includes(normalized)) return "";
+      if (["так", "yes", "1", "true", "+"].includes(normalized)) return "Хіт";
+      return popular;
     }
 
     function getPhotoVisibility(row) {
@@ -676,7 +687,7 @@
             </div>
           ` : ""}
 
-          ${item.popular ? `<div class="badge">Хіт</div>` : ""}
+          ${item.badgeText ? `<div class="badge">${escapeHTML(item.badgeText)}</div>` : ""}
           <div class="dots"><i></i><i></i><i></i></div>
 
           <div class="item-content">
