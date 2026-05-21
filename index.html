@@ -10,14 +10,14 @@
       --bg: #0f0f0d;
       --wood-1: #171411;
       --wood-2: #201b16;
-      --panel: rgba(18, 18, 16, 0.92);
+      --panel: rgba(18, 18, 16, 0.64);
       --text: #f7f3ea;
       --muted: #b9b1a4;
       --accent: #f2a300;
       --accent-2: #ffc44a;
       --line: rgba(242, 163, 0, 0.26);
       --radius: 24px;
-      --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
+      --shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
       --max: 620px;
       --page-bg-image: none;
     }
@@ -36,7 +36,7 @@
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       background-color: var(--bg);
       background-image:
-        linear-gradient(rgba(7,7,6,.78), rgba(6,6,5,.96)),
+        linear-gradient(rgba(7,7,6,.66), rgba(6,6,5,.88)),
         var(--page-bg-image),
         radial-gradient(ellipse at 18% 8%, rgba(242,163,0,.12), transparent 26%),
         radial-gradient(ellipse at 90% 24%, rgba(255,255,255,.055), transparent 32%),
@@ -77,9 +77,9 @@
       padding: 18px 18px 16px;
       border-radius: 26px;
       background:
-        radial-gradient(circle at 12% 0%, rgba(242,163,0,.18), transparent 34%),
-        linear-gradient(180deg, rgba(255,255,255,.075), rgba(0,0,0,.22)),
-        rgba(12,12,11,.78);
+        radial-gradient(circle at 12% 0%, rgba(242,163,0,.16), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.16)),
+        rgba(12,12,11,.56);
       border: 1px solid rgba(255,255,255,.08);
       box-shadow: var(--shadow);
       text-align: center;
@@ -122,7 +122,7 @@
       z-index: 20;
       margin: 10px -9px 0;
       padding: 10px 9px 9px;
-      background: linear-gradient(180deg, rgba(12,12,11,.98), rgba(12,12,11,.82));
+      background: linear-gradient(180deg, rgba(12,12,11,.86), rgba(12,12,11,.66));
       backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(255,255,255,.045);
     }
@@ -238,12 +238,14 @@
       min-height: auto;
       padding: 30px 22px 42px;
       border-radius: 30px;
-      border: 1px solid rgba(255,255,255,.065);
+      border: 1px solid rgba(255,255,255,.10);
       background:
-        radial-gradient(circle at 100% 0%, rgba(242,163,0,.09), transparent 30%),
-        linear-gradient(180deg, rgba(255,255,255,.045), transparent 38%),
+        radial-gradient(circle at 100% 0%, rgba(242,163,0,.08), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.015) 42%),
         var(--panel);
       box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
 
     .item.no-photo {
