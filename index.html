@@ -457,6 +457,8 @@
   <button class="top-btn" id="topBtn" type="button" aria-label="Нагору">↑</button>
 
   <script>
+    const SHEET_ID = "1GZerl_j73IJE7HO3VSS1w3PXCdqSjvjRkjtlyrNdJ0Q";
+    const SHEET_GID = "0";
     const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
     const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
     const BACKGROUND_IMAGE_COLUMN = "Фон сторінки";
@@ -478,38 +480,109 @@
       catRight: document.getElementById("catRight")
     };
 
+    function hasAppsScriptBridge() {
+      return typeof google !== "undefined" && google.script && google.script.run;
+    }
+
     function loadMenu() {
       setStatus("Завантаження меню...");
       els.menuRoot.innerHTML = "";
 
-      google.script.run
-        .withSuccessHandler(function(rows) {
-          applyPageBackground(rows);
+      if (hasAppsScriptBridge()) {
+        google.script.run
+          .withSuccessHandler(handleRowsLoaded)
+          .withFailureHandler(handleLoadError)
+          .getMenuItems();
+        return;
+      }
 
-          const items = rows
-            .map(normalize)
-            .filter(item => item.name)
-            .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
-            .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
+      loadMenuFromPublicSheet()
+        .then(handleRowsLoaded)
+        .catch(handleLoadError);
+    }
 
-          state.items = items;
-          state.categories = getCategoriesFromRows(items);
-          state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
-          state.updatedAt = new Date();
+    function loadMenuFromPublicSheet() {
+      return new Promise((resolve, reject) => {
+        const previousGoogle = window.google;
+        const script = document.createElement("script");
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          reject(new Error("Google Sheets довго не відповідає"));
+        }, 12000);
 
-          render();
-        })
-        .withFailureHandler(function(error) {
-          console.error(error);
-          setStatus("Не вдалося завантажити меню.");
-          els.menuRoot.innerHTML = `
-            <div class="error-box">
-              <strong>Меню не завантажилось.</strong><br>
-              Перевір Code.gs, доступ до таблиці і назви колонок.
-            </div>
-          `;
-        })
-        .getMenuItems();
+        function cleanup() {
+          window.clearTimeout(timeout);
+          script.remove();
+          if (previousGoogle === undefined) {
+            try { delete window.google; } catch (error) { window.google = undefined; }
+          } else {
+            window.google = previousGoogle;
+          }
+        }
+
+        window.google = window.google || {};
+        window.google.visualization = window.google.visualization || {};
+        window.google.visualization.Query = {
+          setResponse: data => {
+            cleanup();
+            if (!data || data.status === "error") {
+              const message = data?.errors?.[0]?.detailed_message || data?.errors?.[0]?.message || "Помилка читання таблиці";
+              reject(new Error(message));
+              return;
+            }
+            resolve(tableToRows(data.table));
+          }
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Не вдалося підключитися до Google Sheets"));
+        };
+
+        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json&_=${Date.now()}`;
+        document.head.appendChild(script);
+      });
+    }
+
+    function tableToRows(table) {
+      const headers = table.cols.map((col, index) => String(col.label || col.id || `Колонка ${index + 1}`).trim());
+      return table.rows.map(row => {
+        const object = {};
+        headers.forEach((header, index) => {
+          const cell = row.c[index];
+          object[header] = cell ? (cell.f ?? cell.v ?? "") : "";
+        });
+        return object;
+      });
+    }
+
+    function handleRowsLoaded(rows) {
+      applyPageBackground(rows);
+
+      const items = rows
+        .map(normalize)
+        .filter(item => item.name)
+        .filter(item => !["ні", "нет", "no", "false", "0", "hidden", "inactive", "вимкнено"].includes(item.status))
+        .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "uk"));
+
+      state.items = items;
+      state.categories = getCategoriesFromRows(items);
+      state.activeCategory = state.categories.includes(state.activeCategory) ? state.activeCategory : "Усе";
+      state.updatedAt = new Date();
+
+      render();
+    }
+
+    function handleLoadError(error) {
+      console.error(error);
+      setStatus("Не вдалося завантажити меню.");
+      els.menuRoot.innerHTML = `
+        <div class="error-box">
+          <strong>Меню не завантажилось.</strong><br>
+          Якщо сторінка запущена в Apps Script — перевір Code.gs.<br>
+          Якщо сторінка відкрита як звичайний HTML — перевір доступ до Google Sheets за посиланням.
+        </div>
+      `;
     }
 
     function getValue(row, names) {
@@ -550,8 +623,8 @@
 
     function escapeCssUrl(value) {
       return String(value || "")
-        .replaceAll("\\", "\\\\")
-        .replaceAll('"', '\\"');
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, "\\\"");
     }
 
     function getBadgeText(row) {
@@ -718,6 +791,16 @@
       return escapeHTML(value).replaceAll("`", "&#096;");
     }
 
+    function runTests() {
+      console.assert(getImageUrl("https://drive.google.com/file/d/abc123/view?usp=sharing").includes("id=abc123"), "Drive file URL converts to thumbnail URL");
+      console.assert(formatPrice("120") === "120 грн", "Numeric price gets грн suffix");
+      console.assert(formatPrice("120 грн") === "120 грн", "Existing грн suffix is preserved");
+      console.assert(getBadgeText({ "Позначка": "Акція" }) === "Акція", "Custom badge is used first");
+      console.assert(getBadgeText({ "Популярне": "так" }) === "Хіт", "Popular yes becomes Хіт");
+      console.assert(getPhotoVisibility({ "Показувати фото": "ні" }) === false, "Photo can be disabled from sheet");
+      console.assert(getPhotoVisibility({ "Показувати фото": "так" }) === true, "Photo can be enabled from sheet");
+    }
+
     els.tabs.addEventListener("click", event => {
       const button = event.target.closest(".tab");
       if (!button) return;
@@ -753,6 +836,7 @@
       els.topBtn.classList.toggle("visible", window.scrollY > 420);
     });
 
+    runTests();
     loadMenu();
   </script>
 </body>
