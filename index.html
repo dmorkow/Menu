@@ -293,27 +293,38 @@
       padding-right: 0;
     }
 
+    .dots {
+      position: absolute;
+      top: 20px;
+      left: calc((100% - var(--inner-width)) / 2);
+      display: flex;
+      gap: 4px;
+      margin-bottom: 0;
+    }
+
+    .dots i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: block;
+      background: var(--accent);
+    }
+
     .badge {
       position: absolute;
       top: 18px;
-      left: calc((100% - var(--inner-width)) / 2);
-      width: 62px;
-      height: 62px;
+      right: calc((100% - var(--inner-width)) / 2);
       margin: 0;
-      border-radius: 50%;
+      border-radius: 999px;
       background: var(--accent);
       color: #17130a;
-      padding: 7px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      font-size: 9.5px;
-      line-height: 1.08;
+      padding: 6px 9px;
+      font-size: 10px;
+      line-height: 1;
       text-transform: uppercase;
-      letter-spacing: .035em;
+      letter-spacing: .05em;
       font-weight: 900;
-      overflow-wrap: anywhere;
-      box-shadow: 0 8px 18px rgba(242,163,0,.2);
+      box-shadow: 0 6px 16px rgba(242,163,0,.18);
     }
 
     .item-title {
@@ -677,6 +688,7 @@
           ` : ""}
 
           ${item.badgeText ? `<div class="badge">${escapeHTML(item.badgeText)}</div>` : ""}
+          <div class="dots"><i></i><i></i><i></i></div>
 
           <div class="item-content">
             <h3 class="item-title">${escapeHTML(item.name)}</h3>
