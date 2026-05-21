@@ -227,11 +227,11 @@
       position: relative;
       display: grid;
       grid-template-columns: 1fr;
-      gap: 18px;
+      gap: 17px;
       align-items: start;
       justify-items: center;
       min-height: auto;
-      padding: 36px 22px 42px;
+      padding: 30px 22px 42px;
       border-radius: 30px;
       border: 1px solid rgba(255,255,255,.065);
       background:
@@ -244,7 +244,48 @@
     .item.no-photo {
       grid-template-columns: 1fr;
       min-height: auto;
-      padding: 36px 22px 42px;
+      padding: 30px 22px 42px;
+    }
+
+    .top-mark {
+      width: var(--inner-width);
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      justify-self: center;
+      margin: 0 0 2px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 4px;
+      margin: 0;
+    }
+
+    .dots i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: block;
+      background: var(--accent);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 24px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #17130a;
+      padding: 6px 10px;
+      font-size: 10px;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 900;
+      box-shadow: 0 6px 16px rgba(242,163,0,.18);
     }
 
     .photo-wrap {
@@ -279,7 +320,6 @@
     }
 
     .item-content {
-      position: static;
       width: var(--inner-width);
       min-width: 0;
       max-width: none;
@@ -291,40 +331,6 @@
       width: var(--inner-width);
       max-width: none;
       padding-right: 0;
-    }
-
-    .dots {
-      position: absolute;
-      top: 20px;
-      left: calc((100% - var(--inner-width)) / 2);
-      display: flex;
-      gap: 4px;
-      margin-bottom: 0;
-    }
-
-    .dots i {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      display: block;
-      background: var(--accent);
-    }
-
-    .badge {
-      position: absolute;
-      top: 18px;
-      right: calc((100% - var(--inner-width)) / 2);
-      margin: 0;
-      border-radius: 999px;
-      background: var(--accent);
-      color: #17130a;
-      padding: 6px 9px;
-      font-size: 10px;
-      line-height: 1;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      font-weight: 900;
-      box-shadow: 0 6px 16px rgba(242,163,0,.18);
     }
 
     .item-title {
@@ -403,12 +409,12 @@
 
       .item {
         --inner-width: 80%;
-        gap: 17px;
-        padding: 36px 20px 42px;
+        gap: 16px;
+        padding: 30px 20px 42px;
       }
 
       .item.no-photo {
-        padding: 36px 20px 42px;
+        padding: 30px 20px 42px;
       }
     }
 
@@ -687,9 +693,14 @@
     function renderItem(item) {
       const categoryAllowsPhoto = !NO_PHOTO_CATEGORIES.includes(String(item.category || "").trim().toLowerCase());
       const showPhoto = categoryAllowsPhoto && item.showPhoto;
+      const topMark = item.badgeText
+        ? `<div class="badge">${escapeHTML(item.badgeText)}</div>`
+        : `<div class="dots"><i></i><i></i><i></i></div>`;
 
       return `
         <article class="item ${showPhoto ? "" : "no-photo"}">
+          <div class="top-mark">${topMark}</div>
+
           ${showPhoto ? `
             <div class="photo-wrap">
               ${item.photo
@@ -698,9 +709,6 @@
               }
             </div>
           ` : ""}
-
-          ${item.badgeText ? `<div class="badge">${escapeHTML(item.badgeText)}</div>` : ""}
-          <div class="dots"><i></i><i></i><i></i></div>
 
           <div class="item-content">
             <h3 class="item-title">${escapeHTML(item.name)}</h3>
