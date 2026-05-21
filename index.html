@@ -34,10 +34,10 @@
       min-height: 100vh;
       color: var(--text);
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
       overflow-x: hidden;
     }
 
+    /* СТАТИЧНИЙ ФОН ІЗ ЧОРНИМ ЗАТЕМНЕННЯМ 20% */
     .main-bg {
       position: fixed;
       inset: 0;
@@ -45,17 +45,15 @@
       pointer-events: none;
       background-color: var(--bg);
       background-image:
-        linear-gradient(rgba(0,0,0,.34), rgba(0,0,0,.50)),
+        linear-gradient(rgba(0,0,0,0.20), rgba(0,0,0,0.20)),
         var(--page-bg-image);
-      background-size: 100% 100%, cover;
-      background-position: center center, center center;
-      background-repeat: no-repeat, no-repeat;
-      transform: translateZ(0);
-      will-change: transform;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
     }
 
     body::before {
-      display: none;
+      content: none;
     }
 
     button { font: inherit; }
@@ -411,15 +409,6 @@
         --panel: rgba(18, 18, 16, 0.16);
       }
 
-      .main-bg {
-        background-image:
-          linear-gradient(rgba(0,0,0,.32), rgba(0,0,0,.50)),
-          var(--page-bg-image);
-        background-size: 100% 100%, cover;
-        background-position: center center, center center;
-        background-repeat: no-repeat, no-repeat;
-      }
-
       .hero {
         background:
           radial-gradient(circle at 12% 0%, rgba(242,163,0,.10), transparent 34%),
@@ -462,6 +451,7 @@
   </style>
 </head>
 <body>
+  <!-- НОВИЙ ЕЛЕМЕНТ ФОНУ -->
   <div class="main-bg"></div>
 
   <main class="page">
@@ -493,12 +483,7 @@
     const SHEET_GID = "0";
     const NO_PHOTO_CATEGORIES = ["міцний алкоголь", "міцні напої"];
 
-    // Щоб вмикати/вимикати фото через таблицю, додай колонку "Показувати фото".
-    // Значення для вимкнення: ні, no, false, 0, hidden, вимкнено.
     const PHOTO_VISIBILITY_COLUMN = "Показувати фото";
-
-    // Щоб змінити фон сторінки через таблицю, додай колонку "Фон сторінки".
-    // У будь-якому рядку встав посилання на зображення. Перший непорожній лінк стане фоном.
     const PAGE_BACKGROUND_COLUMN = "Фон сторінки";
 
     const state = {
